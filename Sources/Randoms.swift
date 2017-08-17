@@ -7,7 +7,31 @@
 
 // each type has its own random
 
+#if os(Linux)
+	import Glibc
+#else
+	import Darwin
+#endif
+
 import Foundation
+
+extension Int {
+	static func random() -> Int {
+		#if os(Linux)
+			return Int(random())
+		#else
+			return Int(arc4random())
+		#endif
+	}
+
+	static func random(_ max: UInt32) -> Int {
+		#if os(Linux)
+			return Int(random() % max)
+		#else
+			return Int(arc4random_uniform(UInt32(max)))
+		#endif
+	}
+}
 
 public extension Bool {
     /// SwiftRandom extension
@@ -33,7 +57,7 @@ public extension Int {
 
     /// SwiftRandom extension
     public static func random(_ lower: Int = 0, _ upper: Int = 100) -> Int {
-        return lower + Int(arc4random_uniform(UInt32(upper - lower + 1)))
+		return lower + Int.random(UInt32(upper - lower + 1))
     }
 }
 
@@ -47,7 +71,7 @@ public extension Int32 {
     ///
     /// - note: Using `Int` as parameter type as we usually just want to write `Int32.random(13, 37)` and not `Int32.random(Int32(13), Int32(37))`
     public static func random(_ lower: Int = 0, _ upper: Int = 100) -> Int32 {
-        let r = arc4random_uniform(UInt32(Int64(upper) - Int64(lower)))
+		let r = Int.random(UInt32(Int64(upper) - Int64(lower)))
         return Int32(Int64(r) + Int64(lower))
     }
 }
@@ -98,14 +122,14 @@ public extension String {
 public extension Double {
     /// SwiftRandom extension
     public static func random(_ lower: Double = 0, _ upper: Double = 100) -> Double {
-        return (Double(arc4random()) / 0xFFFFFFFF) * (upper - lower) + lower
+        return (Double(Int.random()) / 0xFFFFFFFF) * (upper - lower) + lower
     }
 }
 
 public extension Float {
     /// SwiftRandom extension
     public static func random(_ lower: Float = 0, _ upper: Float = 100) -> Float {
-        return (Float(arc4random()) / 0xFFFFFFFF) * (upper - lower) + lower
+        return (Float(Int.random()) / 0xFFFFFFFF) * (upper - lower) + lower
     }
 }
 
@@ -115,10 +139,10 @@ public extension Date {
         let today = Date()
         let gregorian = Calendar(identifier: Calendar.Identifier.gregorian)
 
-        let r1 = arc4random_uniform(UInt32(days))
-        let r2 = arc4random_uniform(UInt32(23))
-        let r3 = arc4random_uniform(UInt32(59))
-        let r4 = arc4random_uniform(UInt32(59))
+		let r1 = Int.random(UInt32(days))
+        let r2 = Int.random(UInt32(23))
+        let r3 = Int.random(UInt32(59))
+        let r4 = Int.random(UInt32(59))
 
         var offsetComponents = DateComponents()
         offsetComponents.day = Int(r1) * -1
@@ -135,7 +159,7 @@ public extension Date {
 
     /// SwiftRandom extension
     public static func random() -> Date {
-        let randomTime = TimeInterval(arc4random_uniform(UInt32.max))
+        let randomTime = TimeInterval(Int.random(UInt32.max))
         return Date(timeIntervalSince1970: randomTime)
     }
 
@@ -148,7 +172,7 @@ public extension Array {
             return nil
         }
 
-        let index = Int(arc4random_uniform(UInt32(self.count)))
+        let index = Int(Int.random(UInt32(self.count)))
         return self[index]
     }
 }
