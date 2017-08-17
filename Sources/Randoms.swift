@@ -26,7 +26,7 @@ extension Int {
 
 	static func random(_ max: UInt32) -> Int {
 		#if os(Linux)
-			return Int(random() % max)
+			return Int(UInt32(random()) % max)
 		#else
 			return Int(arc4random_uniform(UInt32(max)))
 		#endif
